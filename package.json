@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "displayName": "Homebridge Nature Remo Toggle Light",
   "name": "@nu50218/homebridge-nature-remo-toggle-light",
   "version": "1.0.0",
