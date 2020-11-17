@@ -21,7 +21,7 @@ let hap: HAP;
  */
 export = (api: API) => {
   hap = api.hap;
-  api.registerAccessory('homebridge-nature-remo-toggle-light', Accessory);
+  api.registerAccessory('homebridge-nature-remo-toggle-light', 'Homebridge Nature Remo Toggle Light', Accessory);
 };
 
 class Accessory implements AccessoryPlugin {
