@@ -1,7 +1,6 @@
 {
   "pluginAlias": "homebridge-nature-remo-toggle-light",
-  "pluginType": "platform",
-  "singular": true,
+  "pluginType": "accessory",
   "schema": {
     "type": "object",
     "properties": {
@@ -9,7 +8,19 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "my-light"
+      },
+      "access_token": {
+        "title": "Access Token",
+        "type": "string",
+        "required": true,
+        "default": "access-token-xxxxxxxxxx"
+      },
+      "signal_id": {
+        "title": "Signal ID",
+        "type": "string",
+        "required": true,
+        "default": "signal-xxxxxxxxxx"
       }
     }
   }
