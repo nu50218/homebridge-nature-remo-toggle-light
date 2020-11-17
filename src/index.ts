@@ -8,6 +8,7 @@ import {
   CharacteristicValue,
   HAP,
   Logging,
+  // eslint-disable-next-line comma-dangle
   Service
 } from 'homebridge';
 
