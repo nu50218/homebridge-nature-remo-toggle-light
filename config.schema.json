@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "homebridge-nature-remo-toggle-light",
   "pluginType": "platform",
   "singular": true,
   "schema": {
