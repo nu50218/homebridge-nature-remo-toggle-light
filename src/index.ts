@@ -114,7 +114,7 @@ class Accessory implements AccessoryPlugin {
         for (let i = 0; i < 3; i++) {
           await _sleep(5000);
           const new_illuminance = await this.getIlluminance();
-          if (prev_illuminance === new_illuminance) {
+          if (prev_illuminance == new_illuminance) {
             continue;
           }
 
