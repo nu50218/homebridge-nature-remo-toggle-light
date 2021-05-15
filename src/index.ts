@@ -31,7 +31,7 @@ class Accessory implements AccessoryPlugin {
     private readonly api: API;
     private readonly access_token: string;
     private readonly signal_id: string;
-    private readonly use_illumination: boolean;
+    private readonly use_illuminance: boolean;
 
     private readonly informationService: Service;
     private readonly lightbulbService: Service;
@@ -46,7 +46,7 @@ class Accessory implements AccessoryPlugin {
 
       this.access_token = config.access_token as string;
       this.signal_id = config.signal_id as string;
-      this.use_illumination = config.use_illumination as boolean;
+      this.use_illuminance = config.use_illuminance as boolean;
 
       this.lightbulbService = new this.api.hap.Service.Lightbulb(this.config.name);
       this.lightbulbService.getCharacteristic(this.api.hap.Characteristic.On)
@@ -89,7 +89,7 @@ class Accessory implements AccessoryPlugin {
     async setOnHandler(value: CharacteristicValue, callback: CharacteristicSetCallback) {
       try{
         this.log.info('Setting lightbulb state to:', value);
-        if(!this.use_illumination) {
+        if(!this.use_illuminance) {
           this.requestToggle().then(()=>{
             this.state = value;
           })
@@ -97,28 +97,27 @@ class Accessory implements AccessoryPlugin {
           return
         }
 
-        // use_illumination
-        const prev_illimination = await this.getIllimination();
+        // use_illuminance
+        const prev_illuminance = await this.getIlluminance();
         this.requestToggle().then(async ()=>{
             const _sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             
             for(let i = 0; i < 3; i++) {
               await _sleep(5000);
-              const new_illimination = await this.getIllimination();
-              if (prev_illimination == new_illimination) {
+              const new_illuminance = await this.getIlluminance();
+              if (prev_illuminance == new_illuminance) {
                 continue
               }
 
               let ok = true;
-              ok &&= !(value && ((new_illimination - prev_illimination) < 0))
-              ok &&= !(!value && ((new_illimination - prev_illimination) > 0))
-
-              this.log.info("debug:",prev_illimination, new_illimination, ok);
+              ok &&= !(value && ((new_illuminance - prev_illuminance) < 0))
+              ok &&= !(!value && ((new_illuminance - prev_illuminance) > 0))
               
               if(ok) {
                 this.state = value;
                 return
               }
+              this.log.info("illuminance changed from", prev_illuminance.toString(10), "to", new_illuminance.toString(10),", sending signal again.");
               this.requestToggle().then(()=>{
                 this.state = value;
               })
@@ -132,7 +131,7 @@ class Accessory implements AccessoryPlugin {
       }
     }
 
-    getIllimination() {
+    getIlluminance() {
       return Axios.get('/devices',
         {
           baseURL: baseUrl,
