@@ -21,6 +21,12 @@
         "type": "string",
         "required": true,
         "default": "signal-xxxxxxxxxx"
+      },
+      "use_illuminance": {
+        "title": "Use illuminance Value",
+        "type": "boolean",
+        "required": false,
+        "default": false
       }
     }
   }
