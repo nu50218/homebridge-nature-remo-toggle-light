@@ -31,6 +31,7 @@ class Accessory implements AccessoryPlugin {
     private readonly api: API;
     private readonly access_token: string;
     private readonly signal_id: string;
+    private readonly use_illumination: boolean;
 
     private readonly informationService: Service;
     private readonly lightbulbService: Service;
@@ -45,6 +46,7 @@ class Accessory implements AccessoryPlugin {
 
       this.access_token = config.access_token as string;
       this.signal_id = config.signal_id as string;
+      this.use_illumination = config.use_illumination as boolean;
 
       this.lightbulbService = new this.api.hap.Service.Lightbulb(this.config.name);
       this.lightbulbService.getCharacteristic(this.api.hap.Characteristic.On)
@@ -84,16 +86,54 @@ class Accessory implements AccessoryPlugin {
       return;
     }
 
-    setOnHandler(value: CharacteristicValue, callback: CharacteristicSetCallback) {
-      this.log.info('Setting lightbulb state to:', value);
-      this.state = value;
-      this.toggle();
-      callback(undefined);
+    async setOnHandler(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+      try{
+        this.log.info('Setting lightbulb state to:', value);
+        if(!this.use_illumination) {
+          this.requestToggle().then(()=>{
+            this.state = value;
+          })
+          callback(undefined);
+          return
+        }
+
+        // use_illumination
+        const prev_illimination = await this.getIllimination();
+        this.requestToggle().then(async ()=>{
+            const _sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            
+            for(let i = 0; i < 3; i++) {
+              await _sleep(5000);
+              const new_illimination = await this.getIllimination();
+              if (prev_illimination == new_illimination) {
+                continue
+              }
+
+              let ok = true;
+              ok &&= !(value && ((new_illimination - prev_illimination) < 0))
+              ok &&= !(!value && ((new_illimination - prev_illimination) > 0))
+
+              this.log.info("debug:",prev_illimination, new_illimination, ok);
+              
+              if(ok) {
+                this.state = value;
+                return
+              }
+              this.requestToggle().then(()=>{
+                this.state = value;
+              })
+              return
+            }
+        })
+      }catch(err){
+        this.log("error:", err);
+      }finally{
+        callback(undefined);
+      }
     }
 
-    toggle() {
-      // TODO: エラー処理
-      Axios.post('/signals/' + this.signal_id + '/send', null,
+    getIllimination() {
+      return Axios.get('/devices',
         {
           baseURL: baseUrl,
           headers: {
@@ -101,9 +141,17 @@ class Accessory implements AccessoryPlugin {
           },
         },
       )
-        .catch(err => {
-        // eslint-disable-next-line no-console
-          console.log(err);
-        });
+      .then(res => res.data[0].newest_events.il.val as number)
+    }
+
+    requestToggle() {
+      return Axios.post('/signals/' + this.signal_id + '/send', null,
+        {
+          baseURL: baseUrl,
+          headers: {
+            Authorization: `Bearer ${this.access_token}`,
+          },
+        },
+      )
     }
 }

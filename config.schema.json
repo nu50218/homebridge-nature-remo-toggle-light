@@ -21,6 +21,12 @@
         "type": "string",
         "required": true,
         "default": "signal-xxxxxxxxxx"
+      },
+      "use_illumination": {
+        "title": "Use Illimination Sensor Value",
+        "type": "boolean",
+        "required": false,
+        "default": false
       }
     }
   }
