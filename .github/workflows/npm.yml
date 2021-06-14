@@ -1,6 +1,5 @@
-on: push
-
-push:
+on: 
+  push:
     branches:
       - master
 
