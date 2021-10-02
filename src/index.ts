@@ -92,38 +92,51 @@ class Accessory implements AccessoryPlugin {
   }
 
   async setOnHandler(
-    value: CharacteristicValue,
+    targetState: CharacteristicValue,
     callback: CharacteristicSetCallback,
   ) {
     try {
-      this.log.info('Setting lightbulb state to:', value);
+      //ignore on to on, and off to off requests
+      if(this.state === targetState) return;
+
+      this.log.info('Setting lightbulb state to:', targetState);
       if (!this.use_illuminance) {
         this.requestToggle().then(() => {
-          this.state = value;
+          this.state = targetState;
         });
-        callback(undefined);
+        //callback(undefined); //'finary' handles this
         return;
       }
 
       // use_illuminance
       const prev_illuminance = await this.getIlluminance();
       this.requestToggle().then(async () => {
+        this.state = targetState;
         const _sleep = (ms) =>
           new Promise((resolve) => setTimeout(resolve, ms));
 
+        await _sleep(6000);
         for (let i = 0; i < 3; i++) {
-          await _sleep(5000);
+          await _sleep( i * 2000);
+          //this.log.info('Check at ', 6 + i * 2, ' sec.');
           const new_illuminance = await this.getIlluminance();
+
+          if (this.state !== targetState) {
+            //Light has been toggled while sleep & getIlluminance
+            this.log.info('Canceling illuminance check');
+            return;
+          }
+
           if (prev_illuminance === new_illuminance) {
             continue;
           }
 
           let ok = true;
-          ok &&= !(value && new_illuminance - prev_illuminance < 0);
-          ok &&= !(!value && new_illuminance - prev_illuminance > 0);
+          ok &&= !(targetState && new_illuminance - prev_illuminance < 0);
+          ok &&= !(!targetState && new_illuminance - prev_illuminance > 0);
 
           if (ok) {
-            this.state = value;
+            this.state = targetState;
             return;
           }
           this.log.info(
@@ -134,7 +147,7 @@ class Accessory implements AccessoryPlugin {
             ', sending signal again.',
           );
           this.requestToggle().then(() => {
-            this.state = value;
+            this.state = targetState;
           });
           return;
         }
