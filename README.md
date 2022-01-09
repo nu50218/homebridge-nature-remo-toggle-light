@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/%40nu50218%2Fhomebridge-nature-remo-toggle-light.svg)](https://badge.fury.io/js/%40nu50218%2Fhomebridge-nature-remo-toggle-light)
 
-Nature-remo plugin to controle a IR-remo button that toggle a lightbulb.
+HomeBridge plugin for Nature-remo to controle a single IR-remo-button that toggles a lightbulb.
 
 This keeps on/off state ( = HomeKit state ), which may not reflect actual lightbulb state especially when the bulb is turned on/off by the original remo or wall-switch.
 
