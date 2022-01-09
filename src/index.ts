@@ -47,7 +47,7 @@ class Accessory implements AccessoryPlugin {
     this.access_token = config.access_token as string;
     this.signal_id = config.signal_id as string;
     this.use_illuminance = config.use_illuminance as boolean;
-    this.use_illuminance_TH = config.use_illuminance_TH as integer;
+    this.use_illuminance_TH = config.use_illuminance_TH as number;
 
     this.lightbulbService = new this.api.hap.Service.Lightbulb(
       this.config.name,
@@ -100,14 +100,20 @@ class Accessory implements AccessoryPlugin {
     try {
       this.log.info('Setting lightbulb state to:', targetState);
       if(this.use_illuminance) {
+        //set this.state to the actual illuminance state
         const prev_illuminance = await this.getIlluminance();
         this.log.info('Previous illuminance was:', prev_illuminance);
         this.state = (prev_illuminance > this.use_illuminance_TH);
       } 
-      //ignore on to on, and off to off requests
-      if(this.state != targetState) { 
-        this.requestToggle().then(() => {this.state = targetState;});
-      }
+      this.requestToggle().then(() => { //toggle lightbulb, anyway
+        //ignore on to on, and off to off requests
+        if(this.state == targetState) {
+          //if it was on-to-on, or off-to-off request, cancel it by switching again
+          await _sleep(700);
+          this.requestToggle();
+        }
+        this.state = targetState;
+      });
     } catch (err) {
       this.log('error:', err);
     } finally {
