@@ -31,6 +31,7 @@ class Accessory implements AccessoryPlugin {
   private readonly access_token: string;
   private readonly signal_id: string;
   private readonly use_illuminance: boolean;
+  private readonly use_illuminance_TH: integer;
 
   private readonly informationService: Service;
   private readonly lightbulbService: Service;
@@ -46,6 +47,7 @@ class Accessory implements AccessoryPlugin {
     this.access_token = config.access_token as string;
     this.signal_id = config.signal_id as string;
     this.use_illuminance = config.use_illuminance as boolean;
+    this.use_illuminance_TH = config.use_illuminance_TH as integer;
 
     this.lightbulbService = new this.api.hap.Service.Lightbulb(
       this.config.name,
@@ -96,62 +98,15 @@ class Accessory implements AccessoryPlugin {
     callback: CharacteristicSetCallback,
   ) {
     try {
-      //ignore on to on, and off to off requests
-      if(this.state === targetState) return;
-
       this.log.info('Setting lightbulb state to:', targetState);
-      if (!this.use_illuminance) {
-        this.requestToggle().then(() => {
-          this.state = targetState;
-        });
-        //callback(undefined); //'finary' handles this
-        return;
-      }
-
-      // use_illuminance
-      const prev_illuminance = await this.getIlluminance();
-      this.requestToggle().then(async () => {
-        this.state = targetState;
-        const _sleep = (ms) =>
-          new Promise((resolve) => setTimeout(resolve, ms));
-
-        await _sleep(6000);
-        for (let i = 0; i < 3; i++) {
-          await _sleep( i * 2000);
-          //this.log.info('Check at ', 6 + i * 2, ' sec.');
-          const new_illuminance = await this.getIlluminance();
-
-          if (this.state !== targetState) {
-            //Light has been toggled while sleep & getIlluminance
-            this.log.info('Canceling illuminance check');
-            return;
-          }
-
-          if (prev_illuminance === new_illuminance) {
-            continue;
-          }
-
-          let ok = true;
-          ok &&= !(targetState && new_illuminance - prev_illuminance < 0);
-          ok &&= !(!targetState && new_illuminance - prev_illuminance > 0);
-
-          if (ok) {
-            this.state = targetState;
-            return;
-          }
-          this.log.info(
-            'illuminance changed from',
-            prev_illuminance.toString(10),
-            'to',
-            new_illuminance.toString(10),
-            ', sending signal again.',
-          );
-          this.requestToggle().then(() => {
-            this.state = targetState;
-          });
-          return;
-        }
-      });
+      if(this.use_illuminance) {
+        const prev_illuminance = await this.getIlluminance();
+        this.log.info('Previous illuminance was:', prev_illuminance);
+        this.state = (prev_illuminance > this.use_illuminance_TH);
+      } 
+      //ignore on to on, and off to off requests
+      if(this.state === targetState) 
+      this.requestToggle().then(() => {this.state = targetState;});
     } catch (err) {
       this.log('error:', err);
     } finally {
