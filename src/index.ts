@@ -105,8 +105,9 @@ class Accessory implements AccessoryPlugin {
         this.state = (prev_illuminance > this.use_illuminance_TH);
       } 
       //ignore on to on, and off to off requests
-      if(this.state === targetState) 
-      this.requestToggle().then(() => {this.state = targetState;});
+      if(this.state != targetState) { 
+        this.requestToggle().then(() => {this.state = targetState;});
+      }
     } catch (err) {
       this.log('error:', err);
     } finally {
