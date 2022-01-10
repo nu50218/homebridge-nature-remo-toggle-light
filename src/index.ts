@@ -87,15 +87,17 @@ class Accessory implements AccessoryPlugin {
     return [this.informationService, this.lightbulbService];
   }
 
-  async getOnHandler(callback: CharacteristicGetCallback) {
+  getOnHandler(callback: CharacteristicGetCallback) {
     this.log.info('Getting lightbulb state');
     if(this.use_illuminance){
-      const current_illumi = await this.getIlluminance();
-      this.log.info('Current illuminance: ',current_illumi);
-      this.state = (current_illumi > this.use_illuminance_TH);
+      this.getIlluminance().then((current_illumi) ==> {
+        this.log.info('Current illuminance: ',current_illumi);
+        this.state = (current_illumi > this.use_illuminance_TH);
+        callback(undefined, this.state);
+      });
+    } else {
+      callback(undefined, this.state);
     }
-    callback(undefined, this.state);
-    return;
   }
 
   setOnHandler(
