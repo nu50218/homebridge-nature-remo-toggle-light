@@ -91,11 +91,11 @@ class Accessory implements AccessoryPlugin {
     this.log.info('Getting lightbulb state');
     if(this.use_illuminance){
       this.getIlluminance().then((current_illumi) => {
-        this.log.info('Current illuminance: ',current_illumi);
+        this.log.info('Current illuminance: ', current_illumi);
         this.state = (current_illumi > this.use_illuminance_TH);
         callback(undefined, this.state);
       });
-    } else {
+    } else { //if illuminance is not used
       callback(undefined, this.state);
     }
   }
