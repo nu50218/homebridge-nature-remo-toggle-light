@@ -4,9 +4,9 @@
 
 HomeBridge plugin for Nature-remo to controle a single IR-remo-button that toggles a lightbulb.
 
-This keeps on/off state ( = HomeKit state ), which may not reflect actual lightbulb state especially when the bulb is turned on/off by the original remo or wall-switch.
+This plugin and HomeKit keeps on/off state of the lightbulb, however, this may not reflect actual lightbulb state when the bulb is turned on/off by the original remo or a wall-switch. The plugin uses illuminance sensor equipped in Nature-remo (not in 'mini') to update the status. It may take a few minutes to be updated.
 
-## 設定例
+## Config example
 
 ```json
 {
@@ -14,7 +14,7 @@ This keeps on/off state ( = HomeKit state ), which may not reflect actual lightb
   "name": "my-light",
   "access_token": "access-token-xxxxxxxxxx",
   "signal_id": "signal-xxxxxxxxxx",
-  //if the current state does not reflect actual illuminance, toggle again
+  //use illuminance sensor and threashold to update status
   "use_illuminance": true,
   "use_illuminancd_TH": 120
 }

@@ -31,7 +31,7 @@ class Accessory implements AccessoryPlugin {
   private readonly access_token: string;
   private readonly signal_id: string;
   private readonly use_illuminance: boolean;
-  private readonly use_illuminance_TH: integer;
+  private readonly use_illuminance_TH: number;
 
   private readonly informationService: Service;
   private readonly lightbulbService: Service;
@@ -87,31 +87,24 @@ class Accessory implements AccessoryPlugin {
     return [this.informationService, this.lightbulbService];
   }
 
-  getOnHandler(callback: CharacteristicGetCallback) {
+  async getOnHandler(callback: CharacteristicGetCallback) {
     this.log.info('Getting lightbulb state');
+    if(this.use_illuminance){
+      const current_illumi = await this.getIlluminance();
+      this.log.info('Current illuminance: ',current_illumi);
+      this.state = (current_illumi > this.use_illuminance_TH);
+    }
     callback(undefined, this.state);
     return;
   }
 
-  async setOnHandler(
+  setOnHandler(
     targetState: CharacteristicValue,
     callback: CharacteristicSetCallback,
   ) {
     try {
       this.log.info('Setting lightbulb state to:', targetState);
-      if(this.use_illuminance) {
-        //set this.state to the actual illuminance state
-        const prev_illuminance = await this.getIlluminance();
-        this.log.info('Previous illuminance was:', prev_illuminance);
-        this.state = (prev_illuminance > this.use_illuminance_TH);
-      } 
-      this.requestToggle().then(() => { //toggle lightbulb, anyway
-        //ignore on to on, and off to off requests
-        if(this.state == targetState) {
-          //if it was on-to-on, or off-to-off request, cancel it by switching again
-          await _sleep(700);
-          this.requestToggle();
-        }
+      this.requestToggle().then(() => {
         this.state = targetState;
       });
     } catch (err) {
