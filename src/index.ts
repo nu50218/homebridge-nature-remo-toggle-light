@@ -90,7 +90,7 @@ class Accessory implements AccessoryPlugin {
   getOnHandler(callback: CharacteristicGetCallback) {
     this.log.info('Getting lightbulb state');
     if(this.use_illuminance){
-      this.getIlluminance().then((current_illumi) ==> {
+      this.getIlluminance().then((current_illumi) => {
         this.log.info('Current illuminance: ',current_illumi);
         this.state = (current_illumi > this.use_illuminance_TH);
         callback(undefined, this.state);
