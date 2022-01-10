@@ -2,11 +2,11 @@
 
 [![npm version](https://badge.fury.io/js/%40nu50218%2Fhomebridge-nature-remo-toggle-light.svg)](https://badge.fury.io/js/%40nu50218%2Fhomebridge-nature-remo-toggle-light)
 
-On/Offが同じ信号のタイプの照明を無理やり対応させる奴です。
+HomeBridge plugin for Nature-remo to controle a single IR-remo-button that toggles a lightbulb.
 
-最後に送信されたOn/Offの値を保存しておくので、他のリモコンで操作すると同期がとれなくなります。
+This plugin and HomeKit keeps on/off state of the lightbulb, however, this may not reflect actual lightbulb state when the bulb is turned on/off by the original remo or a wall-switch. The plugin uses illuminance sensor equipped in Nature-remo (not in 'mini') to update the status. It may take a few minutes to be updated.
 
-## 設定例
+## Config example
 
 ```json
 {
@@ -14,7 +14,8 @@ On/Offが同じ信号のタイプの照明を無理やり対応させる奴で�
   "name": "my-light",
   "access_token": "access-token-xxxxxxxxxx",
   "signal_id": "signal-xxxxxxxxxx",
-  // 操作したときに照度センサーの値の変化に矛盾が生じた場合に、もう一度信号を送信します。
-  "use_illuminance": true
+  //use illuminance sensor and threashold to update status
+  "use_illuminance": true,
+  "use_illuminancd_TH": 120
 }
 ```

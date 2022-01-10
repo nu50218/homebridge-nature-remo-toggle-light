@@ -27,6 +27,12 @@
         "type": "boolean",
         "required": false,
         "default": false
+      },
+      "use_illuminance_TH": {
+        "title": "Illuminance threshold for bright or dark",
+        "type": "number",
+        "required": false,
+        "default": 120
       }
     }
   }
